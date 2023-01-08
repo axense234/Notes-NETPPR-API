@@ -1,7 +1,10 @@
 import { createClient } from "redis";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const redisClient = createClient({
-  url: "redis://red-cetdhco2i3mj6pi0ra20:6379",
+  url: process.env.REDIS_INSTANCE,
 });
 
 const connectToRedis = async () => {
