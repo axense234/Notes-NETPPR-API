@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_uid       String @id @default(uuid())
+  username       String
+  password       String
+  email          String @unique
+  createdNotes   Note[] @relation("CREATED NOTES")
+  favoritedNotes Note[] @relation("FAVORITED NOTES")
+  role           Role   @default(BASIC)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Note {
+  note_uid    String     @id @default(uuid())
+  title       String
+  content     String
+  categories  Category[]
+  createdBy   User       @relation(name: "CREATED NOTES", fields: [createdById], references: [user_uid])
+  createdById String
+  favoritedBy User[]     @relation(name: "FAVORITED NOTES")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  category_uid String @id @default(uuid())
+  name         String @unique
+  notes        Note[]
+}
+
+enum Role {
+  BASIC
+  AUTHOR
+  ADMIN
+}

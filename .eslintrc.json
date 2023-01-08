@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "airbnb",
+    "plugin:node/recommended",
+    "prettier",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["prettier", "@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "root": true,
+  "rules": {
+    "arrow-body-style": "off",
+    "no-console": "off",
+    "node/no-unsupported-features/es-syntax": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
+    "import/first": "off",
+    "node/no-missing-import": "off",
+    "import/prefer-default-export": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "consistent-return": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-shadow": "off"
+  }
+}
