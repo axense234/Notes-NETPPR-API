@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nodemon src/index.ts",
     "build": "npm install typescript;tsc;npx prisma migrate deploy production",
-    "start": "redis-server;node dist/index.js"
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
