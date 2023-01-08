@@ -46,6 +46,7 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "redis": "^4.5.1",
+    "redis-server": "^1.2.2",
     "swagger-jsdoc": "^6.2.7",
     "swagger-ui-express": "^4.6.0",
     "xss-clean": "^0.1.1"
