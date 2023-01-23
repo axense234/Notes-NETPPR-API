@@ -15,7 +15,7 @@ const swaggerOptions = {
     },
     components: {
       schemas: {
-        User: {
+        Author: {
           properties: {
             username: {
               type: "string",

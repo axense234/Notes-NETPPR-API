@@ -18,7 +18,7 @@ import notFoundMiddleware from "./middleware/notFound";
 import errorHandlerMiddleware from "./middleware/errorHandler";
 
 import authRouter from "./routes/auth";
-import usersRouter from "./routes/users";
+import authorsRouter from "./routes/authors";
 import notesRouter from "./routes/notes";
 import categoriesRouter from "./routes/category";
 
@@ -48,7 +48,7 @@ app.get("/", (req: Request, res: Response) => {
   return res.status(200).json({ msg: "Hello" });
 });
 
-app.use("/", [authRouter, notesRouter, usersRouter, categoriesRouter]);
+app.use("/", [authRouter, notesRouter, authorsRouter, categoriesRouter]);
 app.use(errorHandlerMiddleware);
 // Swagger Docs
 app.use("/api/1.0.0/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));

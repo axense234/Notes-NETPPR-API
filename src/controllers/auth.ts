@@ -1,37 +1,37 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes/build/cjs/status-codes";
-import { UserClient } from "../db/postgres";
+import { AuthorClient } from "../db/postgres";
 import { encryptPassword, comparePasswords } from "../utils/bcrypt";
 import { createJWT } from "../utils/jwt";
 import { setCache } from "../utils/redis";
 
-// CREATE USER / SIGN UP USER
-const createUser = async (req: Request, res: Response) => {
-  const userBody = req.body;
+// CREATE AUTHOR / SIGN UP AUTHOR
+const createAuthor = async (req: Request, res: Response) => {
+  const authorBody = req.body;
 
-  const encryptedPass = await encryptPassword(userBody.password);
-  userBody.password = encryptedPass;
+  const encryptedPass = await encryptPassword(authorBody.password);
+  authorBody.password = encryptedPass;
 
-  const createdUser = await UserClient.create({ data: { ...userBody } });
+  const createdAuthor = await AuthorClient.create({ data: { ...authorBody } });
 
-  if (!createdUser) {
+  if (!createdAuthor) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ msg: "Could not create user!" });
+      .json({ msg: "Could not create author!" });
   }
 
-  const token = createJWT(createdUser.user_uid, createdUser.username);
+  const token = createJWT(createdAuthor.author_uid, createdAuthor.username);
   await setCache("jwt-notesapi", token);
 
   return res.status(StatusCodes.CREATED).json({
-    msg: `Successfully created user with uid:${createdUser.user_uid}.`,
+    msg: `Successfully created author with uid:${createdAuthor.author_uid}.`,
     token,
-    user: createdUser,
+    author: createdAuthor,
   });
 };
 
-// LOGIN USER
-const loginUser = async (req: Request, res: Response) => {
+// LOGIN AUTHOR
+const loginAuthor = async (req: Request, res: Response) => {
   const { password, email } = req.body;
 
   if (!password || !email) {
@@ -40,17 +40,17 @@ const loginUser = async (req: Request, res: Response) => {
       .json({ msg: "Please enter both password and email!" });
   }
 
-  const foundUser = await UserClient.findUnique({ where: { email } });
+  const foundAuthor = await AuthorClient.findUnique({ where: { email } });
 
-  console.log(foundUser);
+  console.log(foundAuthor);
 
-  if (!foundUser) {
+  if (!foundAuthor) {
     return res
       .status(StatusCodes.NOT_FOUND)
-      .json({ msg: `Could not find any users with the email:${email}...` });
+      .json({ msg: `Could not find any authors with the email:${email}...` });
   }
 
-  const passMatch = await comparePasswords(password, foundUser.password);
+  const passMatch = await comparePasswords(password, foundAuthor.password);
   console.log(passMatch);
 
   if (!passMatch) {
@@ -59,15 +59,15 @@ const loginUser = async (req: Request, res: Response) => {
       .json({ msg: "Passwords do not match!" });
   }
 
-  const token = createJWT(foundUser.user_uid, foundUser.username);
+  const token = createJWT(foundAuthor.author_uid, foundAuthor.username);
   await setCache("jwt-notesapi", token);
 
   return res.status(StatusCodes.OK).json({
-    msg: `Successfully logged in as ${foundUser.username}!`,
+    msg: `Successfully logged in as ${foundAuthor.username}!`,
     token,
-    user: foundUser,
+    author: foundAuthor,
   });
 };
 
 // EXPORTS
-export { createUser, loginUser };
+export { createAuthor, loginAuthor };

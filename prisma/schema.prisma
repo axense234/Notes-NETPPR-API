@@ -10,14 +10,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  user_uid       String @id @default(uuid())
-  username       String
-  password       String
-  email          String @unique
+model Author {
+  author_uid String @id @default(uuid())
+  username   String
+  password   String
+  email      String @unique
+
   createdNotes   Note[] @relation("CREATED NOTES")
   favoritedNotes Note[] @relation("FAVORITED NOTES")
-  role           Role   @default(BASIC)
+
+  folders Folder[]
+  role    Role     @default(BASIC)
+
+  mainCategory Category @relation(fields: [category_uid], references: [category_uid])
+  category_uid String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -28,18 +34,33 @@ model Note {
   title       String
   content     String
   categories  Category[]
-  createdBy   User       @relation(name: "CREATED NOTES", fields: [createdById], references: [user_uid])
+  createdBy   Author     @relation(name: "CREATED NOTES", fields: [createdById], references: [author_uid])
   createdById String
-  favoritedBy User[]     @relation(name: "FAVORITED NOTES")
+  favoritedBy Author[]   @relation(name: "FAVORITED NOTES")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  folder     Folder? @relation(fields: [folder_uid], references: [folder_uid])
+  folder_uid String?
+}
+
+model Folder {
+  folder_uid String @id @default(uuid())
+  label      String
+
+  notes Note[]
+
+  createdBy  Author @relation(fields: [author_uid], references: [author_uid])
+  author_uid String
 }
 
 model Category {
   category_uid String @id @default(uuid())
   name         String @unique
   notes        Note[]
+
+  Author Author[]
 }
 
 enum Role {

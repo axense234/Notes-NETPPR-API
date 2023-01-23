@@ -1,15 +1,15 @@
 import express from "express";
 
 // Controllers and Middleware
-import { createUser, loginUser } from "../controllers/auth";
+import { createAuthor, loginAuthor } from "../controllers/auth";
 
 const router = express.Router();
 
-router.post("/users/signup", createUser);
+router.post("/authors/signup", createAuthor);
 
 /**
  * @swagger
- * /users/signup:
+ * /authors/signup:
  *  post:
  *   security:
  *    - bearerAuth: []
@@ -20,24 +20,24 @@ router.post("/users/signup", createUser);
  *    - application/json
  *   parameters:
  *    - in: body
- *      name: User Body
- *      description: The body of the user you want to create.
+ *      name: Author Body
+ *      description: The body of the author you want to create.
  *      required: true
  *      schema:
- *       $ref: "#/components/schemas/User"
+ *       $ref: "#/components/schemas/Author"
  *   responses:
  *    "201":
- *     description: Successfully created a user in NotesAPI!
+ *     description: Successfully created a author in NotesAPI!
  *    "400":
- *     description: Could not create a note with the body requested.
+ *     description: Could not create an author with the body requested.
  *
  */
 
-router.post("/users/login", loginUser);
+router.post("/authors/login", loginAuthor);
 
 /**
  * @swagger
- * /users/login:
+ * /authors/login:
  *  post:
  *   security:
  *    - bearerAuth: []
@@ -48,7 +48,7 @@ router.post("/users/login", loginUser);
  *    - application/json
  *   parameters:
  *    - in: body
- *      name: User Body
+ *      name: Author Body
  *      description: The username and password of the account you want ot login.
  *      required: true
  *      schema:
