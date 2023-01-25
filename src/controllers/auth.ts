@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes/build/cjs/status-codes";
 import { AuthorClient } from "../db/postgres";
 import { encryptPassword, comparePasswords } from "../utils/bcrypt";
 import { createJWT } from "../utils/jwt";
-import { setCache } from "../utils/redis";
+import { deleteCache, setCache } from "../utils/redis";
 
 // CREATE AUTHOR / SIGN UP AUTHOR
 const createAuthor = async (req: Request, res: Response) => {
@@ -21,7 +21,10 @@ const createAuthor = async (req: Request, res: Response) => {
   }
 
   const token = createJWT(createdAuthor.author_uid, createdAuthor.username);
+
+  await deleteCache(`authors`);
   await setCache("jwt-notesapi", token);
+  await setCache(`authors:${createdAuthor.author_uid}`, createdAuthor);
 
   return res.status(StatusCodes.CREATED).json({
     msg: `Successfully created author with uid:${createdAuthor.author_uid}.`,
@@ -51,7 +54,6 @@ const loginAuthor = async (req: Request, res: Response) => {
   }
 
   const passMatch = await comparePasswords(password, foundAuthor.password);
-  console.log(passMatch);
 
   if (!passMatch) {
     return res

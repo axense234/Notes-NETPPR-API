@@ -138,7 +138,7 @@ const deleteAuthorByUID = async (req: Request, res: Response) => {
     });
   }
 
-  await deleteCache(`notes:${authorUID}`);
+  await deleteCache(`authors:${authorUID}`);
 
   return res.status(StatusCodes.OK).json({
     msg: `Successfully deleted author with uid:${authorUID}.`,

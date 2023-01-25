@@ -2,12 +2,19 @@ import { PrismaClient } from "@prisma/client";
 
 const prismaClient = new PrismaClient();
 
-const AuthorClient = prismaClient.user;
+const AuthorClient = prismaClient.author;
 const NoteClient = prismaClient.note;
+const FolderClient = prismaClient.folder;
 const CategoryClient = prismaClient.category;
 
 const connectToPostgres = async () => {
   await prismaClient.$connect();
 };
 
-export { AuthorClient, NoteClient, CategoryClient, connectToPostgres };
+export {
+  AuthorClient,
+  NoteClient,
+  CategoryClient,
+  FolderClient,
+  connectToPostgres,
+};

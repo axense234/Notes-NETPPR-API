@@ -22,8 +22,8 @@ model Author {
   folders Folder[]
   role    Role     @default(BASIC)
 
-  mainCategory Category @relation(fields: [category_uid], references: [category_uid])
-  category_uid String
+  mainCategory Category? @relation(fields: [category_uid], references: [category_uid])
+  category_uid String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

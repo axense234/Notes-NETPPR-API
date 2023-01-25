@@ -1,4 +1,4 @@
-import { Note, Category, Author } from "@prisma/client";
+import { Note, Category, Author, Folder } from "@prisma/client";
 import { redisClient } from "../db/redis";
 
 const DEF_EXP_TIME = 7200;
@@ -9,8 +9,13 @@ interface getOrSetCacheInterface {
     cb: () =>
       | Promise<(Note & { categories: Category[] })[]>
       | Promise<Note & { categories: Category[] }>
+      | Promise<(Category & { notes: Note[] })[]>
+      | Promise<Category & { notes: Note[] }>
       | Promise<Author[]>
       | Promise<Author>
+      | Promise<Folder[]>
+      | Promise<Folder>
+      | Promise<Category>
       | string
       | null
   ): Promise<any>;
@@ -24,6 +29,8 @@ interface setCacheInterface {
           categories: Category[];
         })
       | Author
+      | Folder
+      | Category
       | string
   ): Promise<void>;
 }

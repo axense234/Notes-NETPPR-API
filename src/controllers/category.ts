@@ -1,13 +1,18 @@
+import { Category, Note } from "@prisma/client";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CategoryClient } from "../db/postgres";
+import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 // GET ALL CATEGORIES
 const getAllCategories = async (req: Request, res: Response) => {
   const { includeNotes } = req.query;
 
-  const allCategories = await CategoryClient.findMany({
-    include: { notes: includeNotes === "true" },
+  const allCategories = await getOrSetCache("categoires", async () => {
+    const categories = await CategoryClient.findMany({
+      include: { notes: includeNotes === "true" },
+    });
+    return categories;
   });
 
   if (allCategories.length < 1) {
@@ -35,10 +40,18 @@ const getCategoryByName = async (req: Request, res: Response) => {
       .json({ msg: "Please enter a category name!", category: {} });
   }
 
-  const foundCategory = await CategoryClient.findUnique({
-    where: { name: categoryName },
-    include: { notes: includeNotes === "true" },
-  });
+  const foundCategory = await getOrSetCache(
+    `categories:${categoryName}`,
+    async () => {
+      const category = await CategoryClient.findUnique({
+        where: { name: categoryName },
+        include: { notes: includeNotes === "true" },
+      });
+      return category as Category & {
+        notes: Note[];
+      };
+    }
+  );
 
   if (!foundCategory) {
     return res.status(StatusCodes.NOT_FOUND).json({
@@ -72,6 +85,9 @@ const createCategory = async (req: Request, res: Response) => {
       .status(StatusCodes.BAD_REQUEST)
       .json({ msg: "Invalid request body.", category: {} });
   }
+
+  await deleteCache("categories");
+  await setCache(`categories:${createdCategory.category_uid}`, createdCategory);
 
   return res.status(StatusCodes.CREATED).json({
     msg: `Successfully created category named ${createdCategory.name}!`,
@@ -108,6 +124,8 @@ const updateCategory = async (req: Request, res: Response) => {
     });
   }
 
+  await setCache(`categories:${updatedCategory.category_uid}`, updatedCategory);
+
   return res.status(StatusCodes.OK).json({
     msg: `Successfully updated category with the name:${updatedCategory.name}!`,
     category: updatedCategory.name,
@@ -134,6 +152,8 @@ const deleteCategory = async (req: Request, res: Response) => {
       category: {},
     });
   }
+
+  await deleteCache(`categories:${deletedCategory.category_uid}`);
 
   return res.status(StatusCodes.OK).json({
     msg: `Successfully deleted category with the name: ${categoryName}!`,

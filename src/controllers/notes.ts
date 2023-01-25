@@ -93,6 +93,7 @@ const createNote = async (req: Request, res: Response) => {
     });
   }
 
+  await deleteCache(`notes`);
   await setCache(`notes:${createdNote.note_uid}`, createdNote);
 
   return res.status(StatusCodes.CREATED).json({
