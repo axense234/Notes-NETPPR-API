@@ -1,7 +1,8 @@
 import { Folder } from "@prisma/client";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { FolderClient } from "../db/postgres";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { FolderClient, NoteClient } from "../db/postgres";
 import {
   deleteAllCache,
   deleteCache,
@@ -9,14 +10,32 @@ import {
   setCache,
 } from "../utils/redis";
 
+type foldersOptionsType = {
+  include: {
+    notes: boolean;
+  };
+  where?: {
+    // This any is FolderWhereInput but i could not install @types/prisma for it
+    author_uid: string;
+  };
+};
+
 // GET ALL FOLDERS
 const getAllFolders = async (req: Request, res: Response) => {
+  const { includeNotes, createdById } = req.query;
+
+  const noteOptions: foldersOptionsType = {
+    include: { notes: includeNotes === "true" },
+  };
+
+  if (createdById !== "undefined") {
+    noteOptions.where = { author_uid: createdById as string };
+  }
+
   const foundFolders = await getOrSetCache("folders", async () => {
-    const folders = await FolderClient.findMany({});
+    const folders = await FolderClient.findMany(noteOptions);
     return folders;
   });
-
-  console.log(foundFolders);
 
   if (foundFolders.length < 1) {
     return res
@@ -34,6 +53,7 @@ const getAllFolders = async (req: Request, res: Response) => {
 // GET FOLDER BY UID
 const getFolderByUID = async (req: Request, res: Response) => {
   const { folderUID } = req.params;
+  const { includeNotes } = req.query;
 
   if (folderUID === ":folderUID") {
     return res
@@ -44,6 +64,7 @@ const getFolderByUID = async (req: Request, res: Response) => {
   const foundFolder = await getOrSetCache(`folders:${folderUID}`, async () => {
     const folder = await FolderClient.findUnique({
       where: { folder_uid: folderUID },
+      include: { notes: includeNotes === "true" },
     });
     return folder as Folder;
   });
@@ -84,6 +105,7 @@ const createFolder = async (req: Request, res: Response) => {
     });
   }
 
+  await deleteCache(`authors:${createdFolder.author_uid}`);
   await deleteCache("folders");
   await setCache(`folders:${createdFolder.folder_uid}`, createdFolder);
 
@@ -115,7 +137,8 @@ const updateFolder = async (req: Request, res: Response) => {
       .json({ msg: `Could not find folder with uid:${folderUID}`, folder: {} });
   }
 
-  await setCache(`notes:${updatedFolder.folder_uid}`, updatedFolder);
+  await setCache(`folders:${updatedFolder.folder_uid}`, updatedFolder);
+  await deleteCache(`folders`);
 
   return res.status(StatusCodes.OK).json({
     msg: `Successfully updated folder with uid:${folderUID}`,
@@ -137,6 +160,17 @@ const deleteFolder = async (req: Request, res: Response) => {
     where: { folder_uid: folderUID },
   });
 
+  const updatedNotesInFolder = await NoteClient.updateMany({
+    data: { folder_uid: null },
+    where: { folder_uid: folderUID },
+  });
+
+  if (!updatedNotesInFolder) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ msg: "Could not update the notes in the folder!" });
+  }
+
   if (!deletedFolder) {
     return res.status(StatusCodes.NOT_FOUND).json({
       msg: `Could not find folder with uid:${folderUID}...`,
@@ -145,6 +179,7 @@ const deleteFolder = async (req: Request, res: Response) => {
   }
 
   await deleteCache(`folders:${deletedFolder.folder_uid}`);
+  await deleteCache("folders");
 
   return res.status(StatusCodes.OK).json({
     msg: `Successfully deleted folder with uid:${folderUID}`,

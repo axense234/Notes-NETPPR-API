@@ -15,6 +15,23 @@ const swaggerOptions = {
     },
     components: {
       schemas: {
+        StyleOption: {
+          properties: {
+            note_uid: {
+              type: "string",
+            },
+          },
+        },
+        Folder: {
+          properties: {
+            label: {
+              type: "string",
+            },
+            author_uid: {
+              type: "string",
+            },
+          },
+        },
         Author: {
           properties: {
             username: {

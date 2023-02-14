@@ -11,6 +11,7 @@
   "rules": {
     "arrow-body-style": "off",
     "no-console": "off",
+    "no-param-reassign": "off",
     "node/no-unsupported-features/es-syntax": "off",
     "import/no-unresolved": "off",
     "import/extensions": "off",

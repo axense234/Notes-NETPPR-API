@@ -22,6 +22,8 @@ import authorsRouter from "./routes/authors";
 import notesRouter from "./routes/notes";
 import categoriesRouter from "./routes/category";
 import foldersRouter from "./routes/folders";
+import testRouter from "./routes/test";
+import styleOptionsRouter from "./routes/styleOptions";
 
 dotenv.config();
 
@@ -39,7 +41,7 @@ app.set("trust proxy", 1);
 app.use(
   rateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 2000000,
   })
 );
 
@@ -55,6 +57,8 @@ app.use("/", [
   authorsRouter,
   categoriesRouter,
   foldersRouter,
+  testRouter,
+  styleOptionsRouter,
 ]);
 app.use(errorHandlerMiddleware);
 // Swagger Docs

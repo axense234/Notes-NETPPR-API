@@ -1,7 +1,7 @@
 import { Author } from "@prisma/client";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes/build/cjs/status-codes";
-import { AuthorClient } from "../db/postgres";
+import { AuthorClient, NoteClient } from "../db/postgres";
 import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 // GET ALL USERS
@@ -33,8 +33,15 @@ const getAllAuthors = async (req: Request, res: Response) => {
 
 // GET USER BY UID
 const getAuthorByUID = async (req: Request, res: Response) => {
-  const { authorUID } = req.params;
-  const { includeCreatedNotes, includeFavoritedNotes } = req.query;
+  const authorUIDParams = req.params.authorUID;
+  const authorUIDCache = req.user.authorUID;
+  const { includeCreatedNotes, includeFavoritedNotes, includeFolders } =
+    req.query;
+
+  console.log(authorUIDParams, authorUIDCache);
+
+  const authorUID =
+    authorUIDParams === "undefined" ? authorUIDCache : authorUIDParams;
 
   if (authorUID === ":authorUID") {
     return res
@@ -48,6 +55,7 @@ const getAuthorByUID = async (req: Request, res: Response) => {
       include: {
         createdNotes: includeCreatedNotes === "true",
         favoritedNotes: includeFavoritedNotes === "true",
+        folders: includeFolders === "true",
       },
     });
     return author as Author;
@@ -70,7 +78,11 @@ const getAuthorByUID = async (req: Request, res: Response) => {
 const updateAuthorByUID = async (req: Request, res: Response) => {
   const { authorUID } = req.params;
   const authorBody = req.body;
-  const { disconnectedFavoritedNotes, includeFavoritesNotes } = req.query;
+  const {
+    disconnectedFavoritedNotes,
+    includeFavoritesNotes,
+    includeCreatedNotes,
+  } = req.query;
 
   const dcats = disconnectedFavoritedNotes as string;
   if (authorBody.favoritedNotes) {
@@ -99,6 +111,7 @@ const updateAuthorByUID = async (req: Request, res: Response) => {
     data: { ...authorBody },
     include: {
       favoritedNotes: includeFavoritesNotes === "true",
+      createdNotes: includeCreatedNotes === "true",
     },
   });
 
@@ -109,7 +122,8 @@ const updateAuthorByUID = async (req: Request, res: Response) => {
     });
   }
 
-  await setCache(`notes:${authorUID}`, updatedAuthor);
+  await setCache(`authors:${authorUID}`, updatedAuthor);
+  await deleteCache("authors");
 
   return res.status(StatusCodes.OK).json({
     msg: `Successfully found author updated with uid:${authorUID}.`,
@@ -119,7 +133,8 @@ const updateAuthorByUID = async (req: Request, res: Response) => {
 
 // DELETE USER BY UID
 const deleteAuthorByUID = async (req: Request, res: Response) => {
-  const { userUID: authorUID } = req.params;
+  const { authorUID } = req.params;
+  const { deleteProfile } = req.query;
 
   if (authorUID === ":authorUID") {
     return res
@@ -127,6 +142,7 @@ const deleteAuthorByUID = async (req: Request, res: Response) => {
       .json({ msg: "Please enter a authorUID!", author: {} });
   }
 
+  await NoteClient.deleteMany({ where: { createdById: authorUID } });
   const deletedAuthor = await AuthorClient.delete({
     where: { author_uid: authorUID },
   });
@@ -136,6 +152,10 @@ const deleteAuthorByUID = async (req: Request, res: Response) => {
       msg: `Could not find author with uid:${authorUID}...`,
       author: {},
     });
+  }
+
+  if (deleteProfile) {
+    await deleteCache("jwt-notesapi");
   }
 
   await deleteCache(`authors:${authorUID}`);

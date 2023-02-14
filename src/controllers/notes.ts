@@ -1,19 +1,46 @@
 import { Category, Note } from "@prisma/client";
 import { Response, Request } from "express";
 import { StatusCodes } from "http-status-codes";
-import { NoteClient } from "../db/postgres";
+import { NoteClient, StyleOptionsClient } from "../db/postgres";
 import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
+
+type noteOptionsType = {
+  include: {
+    categories: boolean;
+    styleOptions: boolean;
+  };
+  where?: {
+    createdById?: string;
+    title?: string;
+  };
+};
 
 // GET ALL NOTES
 const getAllNotes = async (req: Request, res: Response) => {
-  const { includeCategories } = req.query;
+  const { includeCategories, includeStyleOptions, createdById, title } =
+    req.query;
 
-  const foundNotes = await getOrSetCache("notes", async () => {
-    const notes = await NoteClient.findMany({
-      include: { categories: includeCategories === "true" },
-    });
-    return notes;
-  });
+  const noteOptions: noteOptionsType = {
+    include: {
+      categories: includeCategories === "true",
+      styleOptions: includeStyleOptions === "true",
+    },
+  };
+
+  if (createdById !== "undefined" && createdById) {
+    noteOptions.where = {
+      ...noteOptions.where,
+      createdById: createdById as string,
+    };
+  }
+
+  if (title !== "undefined" && title) {
+    noteOptions.where = { ...noteOptions.where, title: title as string };
+  }
+
+  console.log(noteOptions);
+
+  const foundNotes = await NoteClient.findMany(noteOptions);
 
   if (foundNotes.length < 1) {
     return res
@@ -31,7 +58,7 @@ const getAllNotes = async (req: Request, res: Response) => {
 // GET NOTE BY UID
 const getNoteByUID = async (req: Request, res: Response) => {
   const { noteUID } = req.params;
-  const { includeCategories } = req.query;
+  const { includeCategories, includeStyleOptions } = req.query;
 
   if (noteUID === ":noteUID") {
     return res
@@ -42,7 +69,10 @@ const getNoteByUID = async (req: Request, res: Response) => {
   const foundNote = await getOrSetCache(`notes:${noteUID}`, async () => {
     const note = await NoteClient.findUnique({
       where: { note_uid: noteUID },
-      include: { categories: includeCategories === "true" },
+      include: {
+        categories: includeCategories === "true",
+        styleOptions: includeStyleOptions === "true",
+      },
     });
     return note as Note & { categories: Category[] };
   });
@@ -62,7 +92,15 @@ const getNoteByUID = async (req: Request, res: Response) => {
 // CREATE NOTE
 const createNote = async (req: Request, res: Response) => {
   const noteBody = req.body;
-  const { includeCategories } = req.query;
+  const { includeCategories, includeStyleOptions } = req.query;
+
+  if (noteBody.styleOptions) {
+    const createdStyleOptions = await StyleOptionsClient.create({
+      data: { ...noteBody.styleOptions },
+    });
+    noteBody.styleOptions_uid = createdStyleOptions.styleOptions_uid;
+    delete noteBody.styleOptions;
+  }
 
   if (noteBody.categories) {
     const categoriesForUse = noteBody.categories.map((cat: string) => ({
@@ -83,8 +121,11 @@ const createNote = async (req: Request, res: Response) => {
     },
     include: {
       categories: includeCategories === "true",
+      styleOptions: includeStyleOptions === "true",
     },
   });
+
+  console.log(createdNote);
 
   if (!createdNote) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -94,6 +135,8 @@ const createNote = async (req: Request, res: Response) => {
   }
 
   await deleteCache(`notes`);
+  await deleteCache("authors");
+  await deleteCache(`authors:${createdNote.createdById}`);
   await setCache(`notes:${createdNote.note_uid}`, createdNote);
 
   return res.status(StatusCodes.CREATED).json({
@@ -106,9 +149,19 @@ const createNote = async (req: Request, res: Response) => {
 const updateNote = async (req: Request, res: Response) => {
   const { noteUID } = req.params;
   const noteBody = req.body;
-  const { includeCategories, disconnectedCategories } = req.query;
+  const { includeCategories, includeStyleOptions, disconnectedCategories } =
+    req.query;
 
   const dcats = disconnectedCategories as string;
+
+  if (noteBody.styleOptions) {
+    const createdStyleOptions = await StyleOptionsClient.update({
+      where: { styleOptions_uid: noteBody.styleOptions.styleOptions_uid },
+      data: { ...noteBody.styleOptions },
+    });
+    noteBody.styleOptions_uid = createdStyleOptions.styleOptions_uid;
+    delete noteBody.styleOptions;
+  }
 
   if (noteBody.categories) {
     const categoriesForUse = noteBody.categories.map((cat: string) => ({
@@ -132,7 +185,10 @@ const updateNote = async (req: Request, res: Response) => {
   const updatedNote = await NoteClient.update({
     where: { note_uid: noteUID },
     data: { ...noteBody },
-    include: { categories: includeCategories === "true" },
+    include: {
+      categories: includeCategories === "true",
+      styleOptions: includeStyleOptions === "true",
+    },
   });
 
   if (!updatedNote) {
@@ -152,7 +208,7 @@ const updateNote = async (req: Request, res: Response) => {
 // DELETE NOTE
 const deleteNote = async (req: Request, res: Response) => {
   const { noteUID } = req.params;
-  const { includeCategories } = req.query;
+  const { includeCategories, includeStyleOptions } = req.query;
 
   if (noteUID === ":noteUID") {
     return res
@@ -162,7 +218,10 @@ const deleteNote = async (req: Request, res: Response) => {
 
   const deletedNote = await NoteClient.delete({
     where: { note_uid: noteUID },
-    include: { categories: includeCategories === "true" },
+    include: {
+      categories: includeCategories === "true",
+      styleOptions: includeStyleOptions === "true",
+    },
   });
 
   if (!deletedNote) {

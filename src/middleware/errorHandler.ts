@@ -23,6 +23,8 @@ const errorHandlerMiddleware: ErrorRequestHandler = (err, req, res, next) => {
     customError.code = StatusCodes.BAD_REQUEST;
   }
 
+  console.log(err);
+
   return res.status(customError.code).json({ msg: customError.msg });
 };
 

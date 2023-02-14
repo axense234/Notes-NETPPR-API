@@ -140,7 +140,7 @@ router.patch("/notes/update/:noteUID", authenticationMiddleware, updateNote);
  *       type: string
  *   responses:
  *    "200":
- *     description: Successfully updated a note by id in CountriesAPI!
+ *     description: Successfully updated a note by id in NotesAPI!
  *    "400":
  *     description: Please enter a valid note body.
  *    "404":

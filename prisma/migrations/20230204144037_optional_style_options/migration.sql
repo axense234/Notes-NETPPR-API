@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "StyleOptions" ALTER COLUMN "backgroundColor" DROP NOT NULL,
+ALTER COLUMN "fontSize" DROP NOT NULL,
+ALTER COLUMN "fontFamily" DROP NOT NULL,
+ALTER COLUMN "textColor" DROP NOT NULL,
+ALTER COLUMN "titleColor" DROP NOT NULL,
+ALTER COLUMN "titleFontSize" DROP NOT NULL;

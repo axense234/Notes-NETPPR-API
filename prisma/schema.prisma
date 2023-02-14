@@ -11,10 +11,12 @@ datasource db {
 }
 
 model Author {
-  author_uid String @id @default(uuid())
-  username   String
+  author_uid String  @id @default(uuid())
+  id         String? @default("")
+  username   String  @default("Default Username")
   password   String
-  email      String @unique
+  email      String  @unique
+  imageUrl   String  @default("https://res.cloudinary.com/birthdayreminder/image/upload/v1673720375/Very%20Cool%20Notes%20MERN%20Project/default_profile_logo_kwmypo.webp")
 
   createdNotes   Note[] @relation("CREATED NOTES")
   favoritedNotes Note[] @relation("FAVORITED NOTES")
@@ -31,11 +33,13 @@ model Author {
 
 model Note {
   note_uid    String     @id @default(uuid())
+  id          String?    @default("")
   title       String
   content     String
   categories  Category[]
   createdBy   Author     @relation(name: "CREATED NOTES", fields: [createdById], references: [author_uid])
   createdById String
+  authorName  String
   favoritedBy Author[]   @relation(name: "FAVORITED NOTES")
 
   createdAt DateTime @default(now())
@@ -43,10 +47,14 @@ model Note {
 
   folder     Folder? @relation(fields: [folder_uid], references: [folder_uid])
   folder_uid String?
+
+  styleOptions     StyleOptions? @relation(fields: [styleOptions_uid], references: [styleOptions_uid])
+  styleOptions_uid String?       @unique
 }
 
 model Folder {
-  folder_uid String @id @default(uuid())
+  folder_uid String  @id @default(uuid())
+  id         String? @default("")
   label      String
 
   notes Note[]
@@ -61,6 +69,18 @@ model Category {
   notes        Note[]
 
   Author Author[]
+}
+
+model StyleOptions {
+  styleOptions_uid String @id @default(uuid())
+
+  backgroundColor String? @default("#e0c9a6")
+  fontSize        String? @default("16px")
+  fontFamily      String? @default("Poppins")
+  textColor       String? @default("black")
+  titleColor      String? @default("black")
+  titleFontSize   String? @default("16px")
+  note            Note?
 }
 
 enum Role {

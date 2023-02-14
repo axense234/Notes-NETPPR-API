@@ -1,4 +1,4 @@
-import { Note, Category, Author, Folder } from "@prisma/client";
+import { Note, Category, Author, Folder, StyleOptions } from "@prisma/client";
 import { redisClient } from "../db/redis";
 
 const DEF_EXP_TIME = 7200;
@@ -16,6 +16,8 @@ interface getOrSetCacheInterface {
       | Promise<Folder[]>
       | Promise<Folder>
       | Promise<Category>
+      | Promise<StyleOptions>
+      | Promise<StyleOptions[]>
       | string
       | null
   ): Promise<any>;
@@ -31,6 +33,7 @@ interface setCacheInterface {
       | Author
       | Folder
       | Category
+      | StyleOptions
       | string
   ): Promise<void>;
 }
@@ -43,7 +46,7 @@ const getOrSetCache: getOrSetCacheInterface = async (key, cb) => {
     return JSON.parse(data);
   }
   const freshData = await cb();
-  redisClient.setEx(key, DEF_EXP_TIME, JSON.stringify(freshData));
+  await redisClient.setEx(key, DEF_EXP_TIME, JSON.stringify(freshData));
   return freshData;
 };
 

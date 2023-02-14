@@ -1,7 +1,7 @@
 import express from "express";
 
 // Controllers and Middleware
-import { createAuthor, loginAuthor } from "../controllers/auth";
+import { createAuthor, loginAuthor, signOut } from "../controllers/auth";
 
 const router = express.Router();
 
@@ -62,6 +62,25 @@ router.post("/authors/login", loginAuthor);
  *     description: Passwords do not match.
  *    "404":
  *     description: Could not find any accounts with the respective email.
+ *
+ */
+
+router.post("/authors/signout", signOut);
+
+/**
+ * @swagger
+ * /authors/login:
+ *  post:
+ *   security:
+ *    - bearerAuth: []
+ *   description: Route to sign out in NotesAPI!
+ *   tags:
+ *    - AUTH Routes
+ *   consumes:
+ *    - application/json
+ *   responses:
+ *    "200":
+ *     description: Successfully signed out in NotesAPI!
  *
  */
 

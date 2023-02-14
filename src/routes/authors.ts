@@ -41,7 +41,7 @@ router.get("/authors", authenticationMiddleware, getAllAuthors);
  *
  */
 
-router.get("/authors/:authorUID", authenticationMiddleware, deleteAuthorByUID);
+router.get("/authors/:authorUID", authenticationMiddleware, getAuthorByUID);
 
 /**
  * @swagger
