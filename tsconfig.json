@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "target": "ES5"
+    "target": "ES2015"
   },
   "include": ["src/**/*"]
 }
