@@ -1,14 +1,12 @@
-import { Folder } from "@prisma/client";
+// Express
 import { Request, Response } from "express";
+// Status Codes
 import { StatusCodes } from "http-status-codes";
-// eslint-disable-next-line import/no-extraneous-dependencies
+// Prisma
+import { Folder } from "@prisma/client";
 import { FolderClient, NoteClient } from "../db/postgres";
-import {
-  deleteAllCache,
-  deleteCache,
-  getOrSetCache,
-  setCache,
-} from "../utils/redis";
+// Utils
+import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 type foldersOptionsType = {
   include: {

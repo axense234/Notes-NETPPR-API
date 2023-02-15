@@ -1,5 +1,8 @@
+// Prisma
 import { PrismaClientValidationError } from "@prisma/client/runtime/index";
+// Express
 import { ErrorRequestHandler } from "express";
+// Status Codes
 import { StatusCodes } from "http-status-codes";
 
 const errorHandlerMiddleware: ErrorRequestHandler = (err, req, res, next) => {
@@ -23,9 +26,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (err, req, res, next) => {
     customError.code = StatusCodes.BAD_REQUEST;
   }
 
-  console.log(err);
-
-  return res.status(customError.code).json({ msg: err });
+  return res.status(customError.code).json({ msg: customError.msg });
 };
 
 export default errorHandlerMiddleware;

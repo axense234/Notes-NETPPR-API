@@ -1,7 +1,11 @@
-import { Category, Note } from "@prisma/client";
+// Express
 import { Response, Request } from "express";
+// Status Codes
 import { StatusCodes } from "http-status-codes";
+// Prisma
+import { Category, Note } from "@prisma/client";
 import { NoteClient, StyleOptionsClient } from "../db/postgres";
+// Utils
 import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 type noteOptionsType = {
@@ -37,8 +41,6 @@ const getAllNotes = async (req: Request, res: Response) => {
   if (title !== "undefined" && title) {
     noteOptions.where = { ...noteOptions.where, title: title as string };
   }
-
-  console.log(noteOptions);
 
   const foundNotes = await NoteClient.findMany(noteOptions);
 
@@ -124,8 +126,6 @@ const createNote = async (req: Request, res: Response) => {
       styleOptions: includeStyleOptions === "true",
     },
   });
-
-  console.log(createdNote);
 
   if (!createdNote) {
     return res.status(StatusCodes.BAD_REQUEST).json({

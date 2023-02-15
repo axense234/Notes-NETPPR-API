@@ -1,7 +1,11 @@
-import { StyleOptions } from "@prisma/client";
+// Express
 import { Request, Response } from "express";
+// Status Codes
 import { StatusCodes } from "http-status-codes";
+// Prisma
+import { StyleOptions } from "@prisma/client";
 import { StyleOptionsClient } from "../db/postgres";
+// Utils
 import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 // GET ALL STYLE OPTIONS

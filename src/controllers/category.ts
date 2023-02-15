@@ -1,7 +1,11 @@
-import { Category, Note } from "@prisma/client";
+// Express
 import { Request, Response } from "express";
+// Status Codes
 import { StatusCodes } from "http-status-codes";
+// Prisma
+import { Category, Note } from "@prisma/client";
 import { CategoryClient } from "../db/postgres";
+// Utils
 import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 // GET ALL CATEGORIES

@@ -1,7 +1,11 @@
-import { Author } from "@prisma/client";
+// Express
 import { Request, Response } from "express";
+// Status Codes
 import { StatusCodes } from "http-status-codes/build/cjs/status-codes";
+// Prisma
+import { Author } from "@prisma/client";
 import { AuthorClient, NoteClient } from "../db/postgres";
+// Utils
 import { deleteCache, getOrSetCache, setCache } from "../utils/redis";
 
 // GET ALL USERS
@@ -37,8 +41,6 @@ const getAuthorByUID = async (req: Request, res: Response) => {
   const authorUIDCache = req.user.authorUID;
   const { includeCreatedNotes, includeFavoritedNotes, includeFolders } =
     req.query;
-
-  console.log(authorUIDParams, authorUIDCache);
 
   const authorUID =
     authorUIDParams === "undefined" ? authorUIDCache : authorUIDParams;

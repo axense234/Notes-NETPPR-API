@@ -1,4 +1,6 @@
+// Prisma
 import { Note, Category, Author, Folder, StyleOptions } from "@prisma/client";
+// Redis
 import { redisClient } from "../db/redis";
 
 const DEF_EXP_TIME = 7200;
@@ -42,7 +44,6 @@ interface setCacheInterface {
 const getOrSetCache: getOrSetCacheInterface = async (key, cb) => {
   const data = await redisClient.get(key);
   if (data !== null) {
-    console.log("Cache Hit");
     return JSON.parse(data);
   }
   const freshData = await cb();

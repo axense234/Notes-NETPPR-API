@@ -1,3 +1,4 @@
+// Redis and Dotenv
 import { createClient } from "redis";
 import * as dotenv from "dotenv";
 
