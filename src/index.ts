@@ -8,6 +8,7 @@ require("express-async-errors");
 import cors from "cors";
 import rateLimiter from "express-rate-limit";
 import helmet from "helmet";
+import morgan from "morgan";
 
 import swaggerUI from "swagger-ui-express";
 import { swaggerDocs } from "./utils/swagger";
@@ -36,9 +37,11 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 
+app.use(morgan("dev"));
+
 app.set("trust proxy", 1);
 
-// Limit each IP to request 3000 times in 15 mins
+// Limit each IP to request a lot in 15 mins
 app.use(
   rateLimiter({
     windowMs: 15 * 60 * 1000,

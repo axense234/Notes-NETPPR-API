@@ -1,5 +1,5 @@
 // Prisma
-import { PrismaClientValidationError } from "@prisma/client/runtime/index";
+import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 // Express
 import { ErrorRequestHandler } from "express";
 // Status Codes
