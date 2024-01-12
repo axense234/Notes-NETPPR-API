@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "nodemon src/index.ts",
-    "build": "npm install typescript;tsc;npx prisma migrate deploy production",
+    "build": "npm install typescript@4.9.3 && tsc && npx prisma migrate dev",
     "start": "node dist/index.js"
   },
   "keywords": [],
@@ -21,6 +21,7 @@
     "@types/swagger-ui-express": "^4.1.3",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
+    "dotenv": "^16.3.1",
     "eslint": "^8.31.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-node": "^4.1.0",
@@ -32,13 +33,12 @@
     "prettier": "^2.8.1",
     "prisma": "^4.10.1",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.3"
   },
   "dependencies": {
     "@prisma/client": "^4.10.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^6.7.0",

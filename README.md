@@ -13,11 +13,15 @@ Test it out yourself since at the time of writing this i do not know what i did 
 
 ### Dependencies
 
-- check package.json for details
-- also check out the [frontend](https://github.com/axense234/Very-Cool-Notes)
-- if are on windows you will need WSL(windows subsystem for linux) installed because you will need to start up a redis server on such terminal([click here for tutorial](https://learn.microsoft.com/en-us/windows/wsl/install))
+- Git installed on your machine
+- Docker installed on your machine(optional)
+- Your own Postgres DB(optional if you test using docker-compose)
+- Your own Redis DB(optional if you test using docker-compose)
+- Check package.json for other dependencies
 
 ### Installing
+
+- Install using Git
 
 ```
 git clone https://github.com/axense234/Notes-NETPPR-API
@@ -25,28 +29,35 @@ cd Notes-NETPPR-API
 npm install
 ```
 
+- rename **.env.sample** to **.env** and put your own environment variables respectively:
+  - **PGHOST** = the host of your postgres db
+  - **PGDATABASE** = the database of your postgres db
+  - **PGUSERNAME** = the username of your postgres db
+  - **PGPASSWORD** = the password of your postgres db user
+  - **PGPORT** = the port of your postgres db
+  - **REDIS_HOST** = the host of your redis db
+  - **REDIS_PASSWORD** = the password of your redis db
+  - **REDIS_PORT** = the port of your redis db
+  - **PORT** = the port which the server listens on
+  - **JWT_SECRET_KEY** = the jwt secret used for authorization purposes
+  - **ADMINER_PORT** = _OPTIONAL_ the port where you want adminer to listen on
+  - **REDIS_COMMANDER_PORT** = _OPTIONAL_ the port where you want redis-commander to listen on
+  - **DATABASE_URL** = the connection string of your postgres db(made up of other env variables)
+  - **REDIS_INSTANCE_URL** = the connection string of your redis db(made up of other env variables)
+
 ### Executing program
 
-1. Create a .env file in the root directory
-
-2. Add the following variables:
-
-- DATABASE_URL (the connection string of the db you want to connect to, preferably postgresql)
-
-- REDIS_INSTANCE_URL (optional since you can just start up a local redis server)
-
-- JWT_SECRET_KEY (your jwt secret key)
-
-3. Open up WSL cmd and run the following
-
-```
-redis-server
-```
-
-4. Run the backend locally
+- Test through nodemon
 
 ```
 npm test
+```
+
+- Test through docker-compose
+
+```
+docker build -t notes-netppr-api .
+docker compose up
 ```
 
 ## Authors

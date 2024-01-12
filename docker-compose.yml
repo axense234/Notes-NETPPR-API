@@ -1,0 +1,65 @@
+version: "3.8"
+services:
+  trees_analysis:
+    image: notes-netppr-api:latest
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      redis_db:
+        condition: service_healthy
+    command: sh -c 'npx prisma migrate dev && npx prisma generate && npm run test'
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_INSTANCE_URL=${REDIS_INSTANCE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - PORT=${PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${PORT} || exit 1"]
+
+  postgres_db:
+    image: postgres:latest
+    ports:
+      - "${PGPORT}:${PGPORT}"
+    environment:
+      - POSTGRES_USER=${PGUSERNAME}
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - POSTGRES_DB=${PGDATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSERNAME}"]
+      interval: 30s
+      retries: 3
+
+  redis_db:
+    image: redis:latest
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      retries: 5
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    hostname: redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:${REDIS_HOST}:${REDIS_PORT}:0:${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_COMMANDER_PORT}:${REDIS_COMMANDER_PORT}"
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "${ADMINER_PORT}:${ADMINER_PORT}"
+
+volumes:
+  postgres_data:

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import express, { Request, Response } from "express";
+// eslint-disable-next-line import/no-extraneous-dependencies, node/no-unpublished-import
 import * as dotenv from "dotenv";
 
 require("express-async-errors");
@@ -72,8 +73,12 @@ app.use(notFoundMiddleware);
 
 const startServer = async () => {
   try {
-    await connectToPostgres();
-    await connectToRedis();
+    await connectToPostgres().then(() => {
+      console.log("Connected to Postgres DB!");
+    });
+    await connectToRedis().then(() => {
+      console.log("Connected to Redis DB!");
+    });
     app.listen(PORT, () => {
       console.log(`Server is listening on port:${PORT}...`);
     });

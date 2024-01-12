@@ -6,7 +6,9 @@
     "lib": ["ESNext"],
     "esModuleInterop": true,
     "module": "CommonJS",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "skipLibCheck": true,
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules",".env","dist"]
 }
