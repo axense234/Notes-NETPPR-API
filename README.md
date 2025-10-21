@@ -1,22 +1,19 @@
 # Very Cool Notes - MERN WITH TS AND SASS - BACKEND
 
-The backend project using Node, Express, Typescript, Postgresql, Prisma, Redis made for my Very Cool Notes project.
-website.I wanted to play around with all those technologies together and give myself a challenge(that kinda backfired).
+The backend project using Node, Express, Typescript, Postgresql, Prisma, Redis made for my Very Cool Notes project. I wanted to play around with all those technologies together and give myself a challenge (that kinda backfired).
 
 ## Description
 
-The backend project using Node, Express, Typescript, Postgresql, Prisma, Redis made for my Very Cool Notes project.
-website.I wanted to play around with all those technologies together and give myself a challenge(that kinda backfired).
-Test it out yourself since at the time of writing this i do not know what i did here.
+The backend project using Node, Express, Typescript, Postgresql, Prisma, Redis made for my Very Cool Notes project. I wanted to play around with all those technologies together and give myself a challenge (that kinda backfired).
 
 ## Getting Started
 
 ### Dependencies
 
 - Git installed on your machine
-- Docker installed on your machine(optional)
-- Your own Postgres DB(optional if you test using docker-compose)
-- Your own Redis DB(optional if you test using docker-compose)
+- Docker installed on your machine (optional)
+- Your own Postgres DB (optional if you test using docker-compose)
+- Your own Redis DB (optional if you test using docker-compose)
 - Check package.json for other dependencies
 
 ### Installing
